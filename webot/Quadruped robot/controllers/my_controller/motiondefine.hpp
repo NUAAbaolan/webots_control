@@ -23,7 +23,8 @@ class MotionControl
 {
     public:
         char *robot;
-        Vector<float, 12> jointPresentPos;  // present motor 0-11
+        Vector<float, 12> jointPresentPos;  // present joint 0-11
+        Vector<float, 12> jointCmdPos;  // command joint 0-11
         // float timeForGaitPeriod;  // The time of the whole period
         // float timePeriod;  // The time of one period
         // float timePresent;  

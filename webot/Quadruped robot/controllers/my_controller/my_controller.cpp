@@ -14,6 +14,7 @@
 #include <webots/Motor.hpp>
 // #include <webots/Motion.hpp>
 #include <webots/PositionSensor.hpp>
+#define PI 3.1415926
 
 // #include <motionControl.cpp>
 
@@ -28,8 +29,8 @@ using namespace webots;
 // The arguments of the main function can be specified by the
 // "controllerArgs" field of the Robot node
   MotionControl mc;
-  void getpresentJoint(Robot *robot);
-  void setjoint(Robot *robot);
+  void getposition(Robot *robot);
+  void setposition(Robot *robot);
 int main(int argc, char **argv) {
   // create the Robot instance.
   Robot *robot = new Robot(); 
@@ -45,7 +46,8 @@ int main(int argc, char **argv) {
   // Main loop:
   // - perform simulation steps until Webots is stopping the controller
   while (robot->step(timeStep) != -1) {
-    getpresentJoint(robot);
+    getposition(robot);
+    setposition(robot);
     // Read the sensors:
     // Enter here functions to read sensor data, like:
     //  double val = ds->getValue();
@@ -63,7 +65,7 @@ int main(int argc, char **argv) {
 }
 
 
-void getpresentJoint(Robot *robot)
+void getposition(Robot *robot)
 {
   #define TIME_STEP 64
   PositionSensor *LF_joint1 = robot->getPositionSensor("LFL0_position sensor");
@@ -110,7 +112,37 @@ void getpresentJoint(Robot *robot)
     // std::cout << mc.jointPresentPos.transpose() << std::endl; 
   // };
 }
-void setjoint(Robot *robot)
+void setposition(Robot *robot)
 {
-    
+  // for (int i = 0; i <12; i++)
+  // {
+    // mc.jointCmdPos(i) = mc.jointPresentPos(i)+PI/6;
+  // }
+  Motor *LF_Motor1 = robot->getMotor("LFL0_rotational motor");
+  Motor *LF_Motor2 = robot->getMotor("LFL1_rotational motor");
+  Motor *LF_Motor3 = robot->getMotor("LFL2_rotational motor");
+  Motor *RF_Motor1 = robot->getMotor("RFL0_rotational motor");
+  Motor *RF_Motor2 = robot->getMotor("RFL1_rotational motor");
+  Motor *RF_Motor3 = robot->getMotor("RFL2_rotational motor");
+  Motor *LH_Motor1 = robot->getMotor("LBL0_rotational motor");
+  Motor *LH_Motor2 = robot->getMotor("LBL1_rotational motor");
+  Motor *LH_Motor3 = robot->getMotor("LBL2_rotational motor");
+  Motor *RH_Motor1 = robot->getMotor("RBL0_rotational motor");
+  Motor *RH_Motor2 = robot->getMotor("RBL1_rotational motor");
+  Motor *RH_Motor3 = robot->getMotor("RBL2_rotational motor");
+
+  LF_Motor1->setPosition(mc.jointCmdPos(0));
+  LF_Motor2->setPosition(mc.jointCmdPos(1));
+  LF_Motor3->setPosition(mc.jointCmdPos(2));
+  RF_Motor1->setPosition(mc.jointCmdPos(3));
+  RF_Motor2->setPosition(mc.jointCmdPos(4));
+  RF_Motor3->setPosition(mc.jointCmdPos(5));
+  LH_Motor1->setPosition(mc.jointCmdPos(6));
+  LH_Motor2->setPosition(mc.jointCmdPos(7));
+  LH_Motor3->setPosition(mc.jointCmdPos(8));
+  RH_Motor1->setPosition(mc.jointCmdPos(9));
+  RH_Motor2->setPosition(mc.jointCmdPos(10));
+  RH_Motor3->setPosition(mc.jointCmdPos(11));
+  // leftMotor->setVelocity(MAX_SPEED);
+  // rightMotor->setVelocity(MAX_SPEED);     
 }
