@@ -1,4 +1,4 @@
-build/release/my_controller.o: my_controller.cpp motiondefine.hpp \
+build/release/my_controller.o: my_controller.cpp motiondefine.h \
  Eigen/Core Eigen/src/Core/util/DisableStupidWarnings.h \
  Eigen/src/Core/util/Macros.h \
  Eigen/src/Core/util/ConfigureVectorization.h \
@@ -184,4 +184,5 @@ build/release/my_controller.o: my_controller.cpp motiondefine.hpp \
  /snap/webots/19/usr/share/webots/include/controller/cpp/webots/Device.hpp \
  /snap/webots/19/usr/share/webots/include/controller/cpp/webots/../../c/webots/types.h \
  /snap/webots/19/usr/share/webots/include/controller/cpp/webots/Motor.hpp \
- /snap/webots/19/usr/share/webots/include/controller/cpp/webots/PositionSensor.hpp
+ /snap/webots/19/usr/share/webots/include/controller/cpp/webots/PositionSensor.hpp \
+ motionControl.cpp

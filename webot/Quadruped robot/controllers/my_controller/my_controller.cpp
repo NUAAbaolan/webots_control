@@ -8,12 +8,12 @@
 // <webots/DistanceSensor.hpp>, <webots/Motor.hpp>, etc.
 // and/or to add some other includes
 // #include <webots/Robot.hpp>
-#include <motiondefine.hpp>
+#include <motiondefine.h>
 #include <webots/Robot.hpp>
 #include <webots/Device.hpp>
 #include <webots/Motor.hpp>
-// #include <webots/Motion.hpp>
 #include <webots/PositionSensor.hpp>
+#include <motionControl.cpp>
 #define PI 3.1415926
 
 // #include <motionControl.cpp>
@@ -31,6 +31,8 @@ using namespace webots;
   MotionControl mc;
   void getposition(Robot *robot);
   void setposition(Robot *robot);
+  
+  
 int main(int argc, char **argv) {
   // create the Robot instance.
   Robot *robot = new Robot(); 
@@ -63,7 +65,6 @@ int main(int argc, char **argv) {
   delete robot;
   return 0;
 }
-
 
 void getposition(Robot *robot)
 {
@@ -131,18 +132,18 @@ void setposition(Robot *robot)
   Motor *RH_Motor2 = robot->getMotor("RBL1_rotational motor");
   Motor *RH_Motor3 = robot->getMotor("RBL2_rotational motor");
 
-  LF_Motor1->setPosition(mc.jointCmdPos(0));
-  LF_Motor2->setPosition(mc.jointCmdPos(1));
-  LF_Motor3->setPosition(mc.jointCmdPos(2));
-  RF_Motor1->setPosition(mc.jointCmdPos(3));
-  RF_Motor2->setPosition(mc.jointCmdPos(4));
-  RF_Motor3->setPosition(mc.jointCmdPos(5));
-  LH_Motor1->setPosition(mc.jointCmdPos(6));
-  LH_Motor2->setPosition(mc.jointCmdPos(7));
-  LH_Motor3->setPosition(mc.jointCmdPos(8));
-  RH_Motor1->setPosition(mc.jointCmdPos(9));
-  RH_Motor2->setPosition(mc.jointCmdPos(10));
-  RH_Motor3->setPosition(mc.jointCmdPos(11));
+  LF_Motor1->setPosition(mc.jointCmdPos[0]);
+  LF_Motor2->setPosition(mc.jointCmdPos[1]);
+  LF_Motor3->setPosition(mc.jointCmdPos[2]);
+  RF_Motor1->setPosition(mc.jointCmdPos[3]);
+  RF_Motor2->setPosition(mc.jointCmdPos[4]);
+  RF_Motor3->setPosition(mc.jointCmdPos[5]);
+  LH_Motor1->setPosition(mc.jointCmdPos[6]);
+  LH_Motor2->setPosition(mc.jointCmdPos[7]);
+  LH_Motor3->setPosition(mc.jointCmdPos[8]);
+  RH_Motor1->setPosition(mc.jointCmdPos[9]);
+  RH_Motor2->setPosition(mc.jointCmdPos[10]);
+  RH_Motor3->setPosition(mc.jointCmdPos[11]);
   // leftMotor->setVelocity(MAX_SPEED);
   // rightMotor->setVelocity(MAX_SPEED);     
 }
