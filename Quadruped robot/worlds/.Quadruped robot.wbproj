@@ -8,5 +8,5 @@ centralWidgetVisible: 1
 projectionMode: PERSPECTIVE
 renderingMode: PLAIN
 orthographicViewHeight: 1
-textFiles: 2 "controllers/my_controller/my_controller.cpp" "controllers/my_controller/motiondefine.h" "controllers/my_controller/motionControl.cpp"
+textFiles: 0 "controllers/my_controller/my_controller.cpp" "controllers/my_controller/motiondefine.h" "controllers/my_controller/motionControl.cpp"
 consoles: Console:All:All
