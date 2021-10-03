@@ -119,8 +119,6 @@ void MotionControl::nextStep()
     {                                                            // if so, set it to 0.0
         timePresent = 0.0;
     }
-    cout << " next_step ok"<<endl;
-
 }
 
 void MotionControl::inverseKinematics()
@@ -216,7 +214,6 @@ void MotionControl::inverseKinematics()
         }
     }
     times++;
-    cout << "inv ok"<<endl;
 }
 
 void MotionControl::forwardKinematics()
@@ -258,7 +255,6 @@ void MotionControl::forwardKinematics()
         leg2CoMPrePos(leg_nums,2) = -legPresentPos(leg_nums,0);
         
     }
-    cout << "fk ok"<<endl;
 }
 
 void MotionControl::jacobians()
