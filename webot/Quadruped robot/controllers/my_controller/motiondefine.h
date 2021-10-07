@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 #include <math.h>
+#include <sys/time.h>
+#include <unistd.h>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Eigen>
@@ -49,6 +51,7 @@ class MotionControl
         Vector<float, 12> joint_pre_pos;  // present joint angle 0-11
         Vector<float, 12> joint_cmd_pos;  // command joint angle 0-11
         Vector<float, 12> jointPresentVel;  // present motor 0-11
+        
         Matrix<float, 4, 9>jacobian; 
         Matrix<float, 6, 6>A;     //VMC
         Vector<float, 6>B;        //VMC
@@ -88,6 +91,7 @@ class MotionControl
         void setInitPos(Matrix<float, 4, 3> initPosition);
         void setCoMVel(Vector<float, 3> tCV);
         void nextStep();
+        void nextStep1();
         void inverseKinematics();   // standing state
         void setInitial();
         void updateState();
@@ -99,6 +103,7 @@ class MotionControl
         void jacobians();
         void vmc();
         void pid();
-        // MotionControl(float tP, float tFGP, Matrix<float, 4, 2> tFSP);
+        void MotionContr(float tP, float tFGP, Matrix<float, 4, 2> tFSP);
+        
 };
 #endif

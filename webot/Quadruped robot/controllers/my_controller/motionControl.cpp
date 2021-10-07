@@ -3,22 +3,22 @@
 
 using namespace std;
 using namespace Eigen;
-// MotionControl::MotionControl(float tP, float tFGP, Matrix<float, 4, 2> tFSP)
-// {
+void MotionControl::MotionContr(float tP, float tFGP, Matrix<float, 4, 2> tFSP)
+{
     // The parameters for quadruped gait
-    // initFlag = false;
-    // timePeriod = tP;
-    // timeForGaitPeriod = tFGP;
-    // timeForStancePhase = tFSP;
-    // timePresent = 0.0;
-    // timePresentForSwing << 0.0, 0.0, 0.0, 0.0;
-    // targetCoMVelocity << 0.0, 0.0, 0.0;
-    // L1 = 132.0;
-    // L2 = 138.0;
-    // L3 = 0.0;
-    // width = 132.0;
-    // length = 172.0;  
-    // shoulderPos << width/2, length/2, width/2, -length/2, -width/2, length/2, -width/2, -length/2;  // X-Y: LF, RF, LH, RH
+    initFlag = false;
+    timePeriod = tP;
+    timeForGaitPeriod = tFGP;
+    timeForStancePhase = tFSP;
+    timePresent = 0.0;
+    timePresentForSwing << 0.0, 0.0, 0.0, 0.0;
+    targetCoMVelocity << 0.0, 0.0, 0.0;
+    L1 = 0.4;
+    L2 = 0.4;
+    L3 = 0.0;
+    width = 0.48;
+    length = 0.6;  
+    shoulderPos << width/2, length/2, width/2, -length/2, -width/2, length/2, -width/2, -length/2;  // X-Y: LF, RF, LH, RH
 
     // The parameters for creeping gait
     // timeOneSwingPeriod = 0.5 * timeForGaitPeriod;
@@ -35,7 +35,7 @@ using namespace Eigen;
     // L_diag = sqrt(initPosC2L(0,0)*initPosC2L(0,0) + initPosC2L(0,1)*initPosC2L(0,1));
     // beta_diag = atan(initPosC2L(0,0)/initPosC2L(0,1));
     // alpha_diag = PI / 2 - beta_diag;
-// }
+}
 
 
 void MotionControl::setInitPos(Matrix<float, 4, 3> initPosition)
@@ -57,7 +57,7 @@ void MotionControl::setCoMVel(Vector<float, 3> tCV)
 
 void MotionControl::nextStep()
 {
-    for(uint8_t legNum=0; legNum<4; legNum++)  // run all 4 legs
+     for(uint8_t legNum=0; legNum<4; legNum++)  // run all 4 legs
     {
         if(timePresent > timeForStancePhase.row(legNum)(0)-timePeriod/2 && timePresent < timeForStancePhase.row(legNum)(1)+timePeriod/2 )
         {     // check timePresent is in stance phase or swing phase, -timePeriod/2 is make sure the equation is suitable
@@ -97,9 +97,9 @@ void MotionControl::nextStep()
             legCmdPos(legNum, pos) = legCmdPos(legNum, pos) - swingPhaseVelocity(pos) * timePeriod;
             
             if( ( timePresentForSwing(legNum) - (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)))/2 ) > 1e-4)
-            legCmdPos(legNum, 2) -= 3.0;
+            legCmdPos(legNum, 2) -= 0.1;
             if( ( timePresentForSwing(legNum) - (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)))/2 ) < -1e-4 && timePresentForSwing(legNum) > 1e-4)
-            legCmdPos(legNum, 2) += 3.0;
+            legCmdPos(legNum, 2) += 0.1;
             stanceFlag(legNum) = false;
         }
     }
@@ -119,32 +119,69 @@ void MotionControl::nextStep()
     {                                                            // if so, set it to 0.0
         timePresent = 0.0;
     }
-
 }
 
+void MotionControl::nextStep1()
+{
+    if (timePresent < 0.25)
+    {    //stance leg is 2 and 3 ,swing leg is 1 and 4
+    
+        legCmdPos(0, 0) += targetCoMVelocity(0) * timePeriod;
+        legCmdPos(0, 1) += targetCoMVelocity(1) * timePeriod;
+        legCmdPos(0, 2) += 0.004;
+        legCmdPos(3, 0) += targetCoMVelocity(0) * timePeriod;
+        legCmdPos(3, 1) += targetCoMVelocity(1) * timePeriod;
+        legCmdPos(3, 2) += 0.004;
+        
+        legCmdPos(1, 0) -= targetCoMVelocity(0) * timePeriod;
+        legCmdPos(1, 1) -= targetCoMVelocity(1) * timePeriod;
+        legCmdPos(1, 2) += 0.0;
+        legCmdPos(2, 0) -= targetCoMVelocity(0) * timePeriod;
+        legCmdPos(2, 1) -= targetCoMVelocity(1) * timePeriod;
+        legCmdPos(2, 2) += 0.0;
+    }
+    else
+    {
+        legCmdPos(1, 0) += targetCoMVelocity(0) * timePeriod;
+        legCmdPos(1, 1) += targetCoMVelocity(1) * timePeriod;
+        legCmdPos(1, 2) += 0.004;
+        legCmdPos(2, 0) += targetCoMVelocity(0) * timePeriod;
+        legCmdPos(2, 1) += targetCoMVelocity(1) * timePeriod;
+        legCmdPos(2, 2) += 0.004;
+        
+        legCmdPos(0, 0) -= targetCoMVelocity(0) * timePeriod;
+        legCmdPos(0, 1) -= targetCoMVelocity(1) * timePeriod;
+        legCmdPos(0, 2) += 0.0;
+        legCmdPos(3, 0) -= targetCoMVelocity(0) * timePeriod;
+        legCmdPos(3, 1) -= targetCoMVelocity(1) * timePeriod;
+        legCmdPos(3, 2) += 0.0;
+    }
+    timePresent += timePeriod;
+
+}
 void MotionControl::inverseKinematics()
 {
-    float theta[4][3] = {0};
+    // float theta[4][3] = {0};
     float jo_ang[4][3] = {0};
-    float a1[4] = {0};
-    float b1[4] = {0};
-    float c1[4] = {0};
-    float a2[4] = {0};
-    float b2[4] = {0};
-    float c2[4] = {0};
+    // float a1[4] = {0};
+    // float b1[4] = {0};
+    // float c1[4] = {0};
+    // float a2[4] = {0};
+    // float b2[4] = {0};
+    // float c2[4] = {0};
     static int times = 0;
-    motorInitPos[0] = 0.5507;
-    motorInitPos[1] = 0.6734;
-    motorInitPos[2] = 0.7854;
-    motorInitPos[3] = -0.1412;
-    motorInitPos[4] = 0.0245;
-    motorInitPos[5] = -0.7854;
-    motorInitPos[6] = 0.928;
-    motorInitPos[7] = -0.4434;
-    motorInitPos[8] = -0.7854;
-    motorInitPos[9] = -0.1366;
-    motorInitPos[10] = -0.3253;
-    motorInitPos[11] = 0.7854;
+    motorInitPos[0] = 0.0;
+    motorInitPos[1] = 0.0;
+    motorInitPos[2] = 0.0;
+    motorInitPos[3] = 0.0;
+    motorInitPos[4] = 0.0;
+    motorInitPos[5] = 0.0;
+    motorInitPos[6] = 0.0;
+    motorInitPos[7] = 0.0;
+    motorInitPos[8] = 0.0;
+    motorInitPos[9] = 0.0;
+    motorInitPos[10] = 0.0;
+    motorInitPos[11] = 0.0;
 
     if(times!=0)
     {
@@ -156,22 +193,38 @@ void MotionControl::inverseKinematics()
 
     for(int leg_num = 0; leg_num < 4; leg_num++)
     {
-        a1[leg_num] = - legCmdPos(leg_num,2);
-        b1[leg_num] = - legCmdPos(leg_num,1);
-        c1[leg_num] = 0;
-        theta[leg_num][0] = asin((c1[leg_num])/sqrt((a1[leg_num])*(a1[leg_num]) + (b1[leg_num])*(b1[leg_num]))) - atan(b1[leg_num]/a1[leg_num]);
-        jo_ang[leg_num][0] = theta[leg_num][0];
-        theta[leg_num][2] = acos(((- legCmdPos(leg_num,2) * cos(theta[leg_num][0]) + legCmdPos(leg_num,1) * sin(theta[leg_num][0]))*
-                        (- legCmdPos(leg_num,2) * cos(theta[leg_num][0]) + legCmdPos(leg_num,1) * sin(theta[leg_num][0])) + 
-                        legCmdPos(leg_num,0)*legCmdPos(leg_num,0) - L1*L1 - L2*L2)/(2*L1*L2));
-        //jo_ang[leg_num][2] = theta[leg_num][2] - PI / 3;
-        jo_ang[leg_num][2] = theta[leg_num][2];
-        a2[leg_num] = -(- legCmdPos(leg_num,2)) * cos(theta[leg_num][0]) - (legCmdPos(leg_num,1)) * sin(theta[leg_num][0]);
-        b2[leg_num] = legCmdPos(leg_num,0);
-        c2[leg_num] = L2 * sin(theta[leg_num][2]);
-        theta[leg_num][1] = asin((-c2[leg_num])/sqrt((a2[leg_num])*(a2[leg_num]) + (b2[leg_num])*(b2[leg_num]))) - atan(b2[leg_num]/a2[leg_num]);
-        //jo_ang[leg_num][1] = -(theta[leg_num][1] + PI / 6);
-        jo_ang[leg_num][1] = -theta[leg_num][1];
+        float x = legCmdPos(leg_num,0);
+        float y = legCmdPos(leg_num,1);
+        float z = legCmdPos(leg_num,2);
+        float theta0 = atan (- y / z);
+        float theta2 = acos ((pow(( sin(theta0) * y - cos(theta0) * z), 2)  + pow(x, 2) - pow(L1, 2) - pow(L2, 2)) / ( 2 * L1 * L2)) - PI;
+        float cos_theta1 = ((sin (theta2) * y - cos (theta0) * z) * (L1 + L2 * cos (theta2)) + x * L2 * sin(theta2)) / (pow((sin (theta2) * y - cos (theta0) * z), 2) + pow(x, 2));
+        float sin_theta1 = ((L1 + L2 * cos (theta2)) * x - (sin (theta2) * y - cos (theta0) * z) * L2 * sin(theta2)) / (pow((sin (theta2) * y - cos (theta0) * z), 2) + pow(x, 2));
+        float theta1 = atan (sin_theta1/ cos_theta1);
+        jo_ang[leg_num][0] = theta0;
+        jo_ang[leg_num][1] = theta1;
+        jo_ang[leg_num][2] = theta2;
+        // a1[leg_num] = - legCmdPos(leg_num,2);
+        // b1[leg_num] = - legCmdPos(leg_num,1);
+        // c1[leg_num] = 0;
+        // theta[leg_num][0] = asin((c1[leg_num])/sqrt((a1[leg_num])*(a1[leg_num]) + (b1[leg_num])*(b1[leg_num]))) - atan(b1[leg_num]/a1[leg_num]);
+        // jo_ang[leg_num][0] = theta[leg_num][0];
+        // theta[leg_num][2] = acos(((- legCmdPos(leg_num,2) * cos(theta[leg_num][0]) + legCmdPos(leg_num,1) * sin(theta[leg_num][0]))*
+                        // (- legCmdPos(leg_num,2) * cos(theta[leg_num][0]) + legCmdPos(leg_num,1) * sin(theta[leg_num][0])) + 
+                        // legCmdPos(leg_num,0)*legCmdPos(leg_num,0) - L1*L1 - L2*L2)/(2*L1*L2));
+        // //jo_ang[leg_num][2] = theta[leg_num][2] - PI / 3;
+        // jo_ang[leg_num][2] = theta[leg_num][2];
+        // a2[leg_num] = -(- legCmdPos(leg_num,2)) * cos(theta[leg_num][0]) - (legCmdPos(leg_num,1)) * sin(theta[leg_num][0]);
+        // b2[leg_num] = legCmdPos(leg_num,0);
+        // c2[leg_num] = L2 * sin(theta[leg_num][2]);
+        
+        // theta[leg_num][1] = asin((-c2[leg_num])/sqrt((a2[leg_num])*(a2[leg_num]) + (b2[leg_num])*(b2[leg_num]))) - atan(b2[leg_num]/a2[leg_num]);
+        // //jo_ang[leg_num][1] = -(theta[leg_num][1] + PI / 6);
+        // jo_ang[leg_num][1] = -theta[leg_num][1];
+        // if (jo_ang[leg_num][1] > 2.0)
+        // {
+          // jo_ang[leg_num][1] = jo_ang[leg_num][1] - PI;
+        // }
     }
 
     joint_cmd_pos[0] = jo_ang[0][0];
@@ -186,19 +239,20 @@ void MotionControl::inverseKinematics()
     joint_cmd_pos[9] = jo_ang[3][0];
     joint_cmd_pos[10] = jo_ang[3][1];
     joint_cmd_pos[11] = jo_ang[3][2];
+    
 
-    jointCmdPos[0] = motorInitPos[0] - jo_ang[0][0] + jo_ang[0][1];
-    jointCmdPos[1] = motorInitPos[1] + jo_ang[0][0] + jo_ang[0][1];
-    jointCmdPos[2] = motorInitPos[2] - jo_ang[0][2];
-    jointCmdPos[3] = motorInitPos[3] - jo_ang[1][0] - jo_ang[1][1];
-    jointCmdPos[4] = motorInitPos[4] + jo_ang[1][0] - jo_ang[1][1];
+    jointCmdPos[0] = motorInitPos[0] + jo_ang[0][0];
+    jointCmdPos[1] = motorInitPos[1] + jo_ang[0][1];
+    jointCmdPos[2] = motorInitPos[2] + jo_ang[0][2];
+    jointCmdPos[3] = motorInitPos[3] + jo_ang[1][0];
+    jointCmdPos[4] = motorInitPos[4] + jo_ang[1][1];
     jointCmdPos[5] = motorInitPos[5] + jo_ang[1][2];
-    jointCmdPos[6] = motorInitPos[6] + jo_ang[3][0] - jo_ang[3][1];
-    jointCmdPos[7] = motorInitPos[7] - jo_ang[3][0] - jo_ang[3][1];
-    jointCmdPos[8] = motorInitPos[8] + jo_ang[3][2];
-    jointCmdPos[9] = motorInitPos[9] + jo_ang[2][0] - jo_ang[2][1];
-    jointCmdPos[10] = motorInitPos[10] - jo_ang[2][0] - jo_ang[2][1];
-    jointCmdPos[11] = motorInitPos[11] - jo_ang[2][2];
+    jointCmdPos[6] = motorInitPos[6] + jo_ang[2][0];
+    jointCmdPos[7] = motorInitPos[7] + jo_ang[2][1];
+    jointCmdPos[8] = motorInitPos[8] + jo_ang[2][2];
+    jointCmdPos[9] = motorInitPos[9] + jo_ang[3][0];
+    jointCmdPos[10] = motorInitPos[10] + jo_ang[3][1];
+    jointCmdPos[11] = motorInitPos[11] + jo_ang[3][2];
 
     if(times!=0)
     {
@@ -220,18 +274,18 @@ void MotionControl::inverseKinematics()
 void MotionControl::forwardKinematics()
 {
     float joint_pres_pos[4][3];
-    joint_pres_pos[0][0] = (jointPresentPos[1] - motorInitPos[1] - jointPresentPos[0] + motorInitPos[0])/2;
-    joint_pres_pos[0][1] = (jointPresentPos[1] - motorInitPos[1] + jointPresentPos[0] - motorInitPos[0])/2;
-    joint_pres_pos[0][2] = - (jointPresentPos[2] - motorInitPos[2]);
-    joint_pres_pos[1][0] = (jointPresentPos[4] - motorInitPos[4] - jointPresentPos[3] + motorInitPos[3])/2;
-    joint_pres_pos[1][1] = -(jointPresentPos[4] - motorInitPos[4] + jointPresentPos[3] - motorInitPos[3])/2;
-    joint_pres_pos[1][2] = jointPresentPos[5] - motorInitPos[5];
-    joint_pres_pos[2][0] = (jointPresentPos[9] - motorInitPos[9] - jointPresentPos[10] + motorInitPos[10])/2;
-    joint_pres_pos[2][1] = (-jointPresentPos[9] + motorInitPos[9] - jointPresentPos[10] + motorInitPos[10])/2;
-    joint_pres_pos[2][2] = - (jointPresentPos[11] - motorInitPos[11]);
-    joint_pres_pos[3][0] = (jointPresentPos[6] - motorInitPos[6] - jointPresentPos[7] + motorInitPos[7])/2;
-    joint_pres_pos[3][1] = (-jointPresentPos[6] + motorInitPos[6] - jointPresentPos[7] + motorInitPos[7])/2;
-    joint_pres_pos[3][2] = jointPresentPos[8] - motorInitPos[8];
+    joint_pres_pos[0][0] = jointPresentPos[0];
+    joint_pres_pos[0][1] = jointPresentPos[1];
+    joint_pres_pos[0][2] = jointPresentPos[2];
+    joint_pres_pos[1][0] = jointPresentPos[3];
+    joint_pres_pos[1][1] = jointPresentPos[4];
+    joint_pres_pos[1][2] = jointPresentPos[5];
+    joint_pres_pos[2][0] = jointPresentPos[6];
+    joint_pres_pos[2][1] = jointPresentPos[7];
+    joint_pres_pos[2][2] = jointPresentPos[8];
+    joint_pres_pos[3][0] = jointPresentPos[9];
+    joint_pres_pos[3][1] = jointPresentPos[10];
+    joint_pres_pos[3][2] = jointPresentPos[11];
 
     joint_pre_pos[0] = joint_pres_pos[0][0];
     joint_pre_pos[1] = joint_pres_pos[0][1];
@@ -248,13 +302,20 @@ void MotionControl::forwardKinematics()
 
     for(int leg_nums = 0; leg_nums < 4; leg_nums++)
     {
-        legPresentPos(leg_nums,0) = L2 * cos(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]) + L1 * cos(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1]);
-        legPresentPos(leg_nums,1) = L2 * sin(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]) + L1 * sin(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1]);
-        legPresentPos(leg_nums,2) = L2 * sin(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]) + L1 * sin(joint_pres_pos[leg_nums][1]);
+        legPresentPos(leg_nums,0) = -L1 * sin(joint_pres_pos[leg_nums][1]) - L2 * sin(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]);
+        legPresentPos(leg_nums,1) = L1 * sin(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1]) + L2 * sin(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]);
+        legPresentPos(leg_nums,2) = -L1 * cos(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1]) - L2 * cos(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]);
+        
+        // legPresentPos(leg_nums,0) = L2 * cos(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]) + L1 * cos(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1]);
+        // legPresentPos(leg_nums,1) = L2 * sin(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]) + L1 * sin(joint_pres_pos[leg_nums][0]) * cos(joint_pres_pos[leg_nums][1]);
+        // legPresentPos(leg_nums,2) = L2 * sin(joint_pres_pos[leg_nums][1] + joint_pres_pos[leg_nums][2]) + L1 * sin(joint_pres_pos[leg_nums][1]);
         leg2CoMPrePos(leg_nums,0) = shoulderPos(leg_nums,1) + legPresentPos(leg_nums,2);
         leg2CoMPrePos(leg_nums,1) = shoulderPos(leg_nums,0) + legPresentPos(leg_nums,1);
-        leg2CoMPrePos(leg_nums,2) = -legPresentPos(leg_nums,0);
+        leg2CoMPrePos(leg_nums,2) = legPresentPos(leg_nums,0);
         
+        legCmdPos(leg_nums,0) = legPresentPos(leg_nums,0);
+        legCmdPos(leg_nums,1) = legPresentPos(leg_nums,1);
+        legCmdPos(leg_nums,2) = legPresentPos(leg_nums,2);   
     }
 }
 
