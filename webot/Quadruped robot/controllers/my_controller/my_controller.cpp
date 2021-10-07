@@ -36,10 +36,10 @@ int main(int argc, char **argv) {
   // create the Robot instance.
   Robot *robot = new Robot(); 
   
-  float timePeriod = 0.01;
-  float timeForGaitPeriod = 0.49;
+  float timePeriod = 0.001;
+  float timeForGaitPeriod = 0.099;
   Matrix<float, 4, 2> timeForStancePhase;
-  timeForStancePhase << 0, 0.24, 0.25, 0.49, 0.25, 0.49, 0, 0.24;
+  timeForStancePhase << 0, 0.049, 0.050, 0.099, 0.050, 0.099, 0, 0.049;
   mc.timeForStancePhase = timeForStancePhase;
   mc.MotionContr(timePeriod, timeForGaitPeriod, timeForStancePhase); 
  
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
    Matrix<float, 4, 3> initPos; 
    initPos<< 0.0256602, 0.0, -0.641163, 0.0256602, 0.0, -0.641163, 0.0256602, 0.0, -0.641163, 0.0256602, 0.0, -0.641163;
    Vector<float, 3> tCV;
-   tCV<< 1.0, 0.0, 0.0;
+   tCV<< 0.0, 0.0, 0.0;
    mc.setInitPos(initPos);
    mc.setCoMVel(tCV);
    PositionSensor *LF_joint1 = robot->getPositionSensor("LFL0_position sensor");
@@ -98,12 +98,12 @@ int main(int argc, char **argv) {
    Motor *RH_Motor1 = robot->getMotor("RBL0_rotational motor");
    Motor *RH_Motor2 = robot->getMotor("RBL1_rotational motor");
    Motor *RH_Motor3 = robot->getMotor("RBL2_rotational motor");
-   struct timeval startTime, endTime; 
+   // struct timeval startTime, endTime; 
   
   while (robot->step(timeStep) != -1) 
   {
   
-    gettimeofday(&startTime,NULL);
+    // gettimeofday(&startTime,NULL);
     //get present joint
     Vector<float, 12> jointLastPos;
     for (int i = 0; i < 12; i++)
@@ -166,10 +166,10 @@ int main(int argc, char **argv) {
     
     // Enter here functions to send actuator commands, like:
     //  motor->setPosition(10.0);
-    gettimeofday(&endTime,NULL);
-    double timeUse = 1000000*(endTime.tv_sec - startTime.tv_sec) + endTime.tv_usec - startTime.tv_usec;
+    // gettimeofday(&endTime,NULL);
+    // double timeUse = 1000000*(endTime.tv_sec - startTime.tv_sec) + endTime.tv_usec - startTime.tv_usec;
     // cout <<"time" << timeUse<<endl;
-    usleep(10000 - timeUse);
+    // usleep(1000 - timeUse);
   };
 
   // Enter here exit cleanup code.
