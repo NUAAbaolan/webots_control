@@ -36,10 +36,10 @@ int main(int argc, char **argv) {
   // create the Robot instance.
   Robot *robot = new Robot(); 
   
-  float timePeriod = 0.001;
-  float timeForGaitPeriod = 0.099;
+  float timePeriod = 0.01;
+  float timeForGaitPeriod = 0.49;
   Matrix<float, 4, 2> timeForStancePhase;
-  timeForStancePhase << 0, 0.049, 0.050, 0.099, 0.050, 0.099, 0, 0.049;
+  timeForStancePhase << 0, 0.24, 0.25, 0.49, 0.25, 0.49, 0, 0.24;
   mc.timeForStancePhase = timeForStancePhase;
   mc.MotionContr(timePeriod, timeForGaitPeriod, timeForStancePhase); 
  
@@ -55,11 +55,13 @@ int main(int argc, char **argv) {
   // Main loop:
   // - perform simulation steps until Webots is stopping the controller
    Matrix<float, 4, 3> initPos; 
-   initPos<< 0.0256602, 0.0, -0.641163, 0.0256602, 0.0, -0.641163, 0.0256602, 0.0, -0.641163, 0.0256602, 0.0, -0.641163;
+   // initPos<< 0.0259623, -4.93015e-06, -0.641027, 0.0259617, 1.29909e-06, -0.641112,  0.0259029, 2.28772e-06, -0.64105, 0.0259022, 2.4387e-06, -0.64105;
+   initPos<< 0.0259623,-4.93015e-06, -0.641027, 0.0259617, -4.93069e-06 ,   -0.64102 , 0.0260543 ,-4.72215e-06,    -0.640945, 0.0260546,  4.60696e-06,    -0.640945;
    Vector<float, 3> tCV;
    tCV<< 0.0, 0.0, 0.0;
    mc.setInitPos(initPos);
    mc.setCoMVel(tCV);
+   
    PositionSensor *LF_joint1 = robot->getPositionSensor("LFL0_position sensor");
    PositionSensor *LF_joint2 = robot->getPositionSensor("LFL1_position sensor");
    PositionSensor *LF_joint3 = robot->getPositionSensor("LFL2_position sensor");
@@ -98,12 +100,55 @@ int main(int argc, char **argv) {
    Motor *RH_Motor1 = robot->getMotor("RBL0_rotational motor");
    Motor *RH_Motor2 = robot->getMotor("RBL1_rotational motor");
    Motor *RH_Motor3 = robot->getMotor("RBL2_rotational motor");
-   // struct timeval startTime, endTime; 
+   
+   struct timeval startTime, endTime; 
+   
+   int time = 1;
+  while (robot->step(timeStep) != -1) 
+  {
+    mc.jointPresentPos(0) = LF_joint1->getValue();
+    mc.jointPresentPos(1) = LF_joint2->getValue();
+    mc.jointPresentPos(2) = LF_joint3->getValue();
+    mc.jointPresentPos(3) = RF_joint1->getValue();
+    mc.jointPresentPos(4) = RF_joint2->getValue();
+    mc.jointPresentPos(5) = RF_joint3->getValue();
+    mc.jointPresentPos(6) = LH_joint1->getValue();
+    mc.jointPresentPos(7) = LH_joint2->getValue();
+    mc.jointPresentPos(8) = LH_joint3->getValue();
+    mc.jointPresentPos(9) = RH_joint1->getValue();
+    mc.jointPresentPos(10) = RH_joint2->getValue();
+    mc.jointPresentPos(11) = RH_joint3->getValue();
+    mc.forwardKinematics();
+    cout << "leg" << "  " << mc.legCmdPos << endl;
+    for (int i = 0; i < 12 ;i++)
+    {
+        mc.jointCmdPos[i] = mc.jointPresentPos(i);
+    }
+    LF_Motor1->setPosition(mc.jointCmdPos[0]);
+    LF_Motor2->setPosition(mc.jointCmdPos[1]);
+    LF_Motor3->setPosition(mc.jointCmdPos[2]);
+    
+    RF_Motor1->setPosition(mc.jointCmdPos[3]);
+    RF_Motor2->setPosition(mc.jointCmdPos[4]);
+    RF_Motor3->setPosition(mc.jointCmdPos[5]);
+    
+    LH_Motor1->setPosition(mc.jointCmdPos[6]);
+    LH_Motor2->setPosition(mc.jointCmdPos[7]);
+    LH_Motor3->setPosition(mc.jointCmdPos[8]);
+    
+    RH_Motor1->setPosition(mc.jointCmdPos[9]);
+    RH_Motor2->setPosition(mc.jointCmdPos[10]);
+    RH_Motor3->setPosition(mc.jointCmdPos[11]);
+    if (time == 200)
+        break;
+    time += 1;
+  }
+  
   
   while (robot->step(timeStep) != -1) 
   {
   
-    // gettimeofday(&startTime,NULL);
+    gettimeofday(&startTime,NULL);
     //get present joint
     Vector<float, 12> jointLastPos;
     for (int i = 0; i < 12; i++)
@@ -125,29 +170,35 @@ int main(int argc, char **argv) {
     for (int i = 0; i < 12; i++)
     {
          mc.jointPresentVel(i) = (mc.jointPresentPos(i) - jointLastPos(i))/ timePeriod;
-    }     
-    std::cout<<"joint vec"<<"  "<<mc.jointPresentVel.transpose() << std::endl; 
+    } 
+        
+    // std::cout<<"joint vec"<<"  "<<mc.jointPresentVel.transpose() << std::endl; 
 
     
     mc.forwardKinematics();
-    mc.inverseKinematics();
+    // mc.inverseKinematics();
     mc.initFlag = true;
     mc.nextStep();
     mc.inverseKinematics();
+    // mc.pid();
     
-    cout << "present joint" << "  " << mc.jointPresentPos.transpose() << endl;  
-    // std::cout<<"command joint"<< " "<<mc.jointCmdPos[0]<<" "<< mc.jointCmdPos[1]<<" "<<mc.jointCmdPos[2]<< " "<<mc.jointCmdPos[3]<<" "<< mc.jointCmdPos[4]<<" "<<mc.jointCmdPos[5]<< " "<<mc.jointCmdPos[6]<<" "<< mc.jointCmdPos[7]<<" "<<mc.jointCmdPos[8]<< " "<<mc.jointCmdPos[9]<<" "<< mc.jointCmdPos[10]<<" "<<mc.jointCmdPos[11]<< std::endl; 
+    // Vector<float, 12> temp_torque; 
+    // for (int i = 0; i < 12; i++)
+    // {
+      // temp_torque(i) = mc.pid_motortorque[i];
+    // }
+    // cout << "present torque" << "  " <<temp_torque.transpose() << endl;  
+    // std::cout<<"command joint"<< " "<<mc.jointCmdPos[0]<<" "<< mc.jointCmdPos[1]<<" "<<mc.jointCmdPos[2]<< " "<<mc.jointCmdPos[3]<<" "<< mc.jointCmdPos[4]<<" "<<mc.jointCmdPos[5]<< " "<<mc.jointCmdPos[6]<<" "<< mc.jointCmdPos[7]<<" "<<mc.jointCmdPos[8]<< " "<<mc.jointCmdPos[9]<<" "<< mc.jointCmdPos[10]<<" "<<mc.jointCmdPos[11]<< std::endl;
     
     
-    // Read the sensors:
-    // Enter here functions to read sensor data, like:
-    // double val = ds->getValue();
-
-    // Process sensor data here.
-    //set joint
+    //set position
     LF_Motor1->setPosition(mc.jointCmdPos[0]);
     LF_Motor2->setPosition(mc.jointCmdPos[1]);
     LF_Motor3->setPosition(mc.jointCmdPos[2]);
+    
+    RH_Motor1->setPosition(mc.jointCmdPos[9]);
+    RH_Motor2->setPosition(mc.jointCmdPos[10]);
+    RH_Motor3->setPosition(mc.jointCmdPos[11]);
     
     RF_Motor1->setPosition(mc.jointCmdPos[3]);
     RF_Motor2->setPosition(mc.jointCmdPos[4]);
@@ -157,18 +208,28 @@ int main(int argc, char **argv) {
     LH_Motor2->setPosition(mc.jointCmdPos[7]);
     LH_Motor3->setPosition(mc.jointCmdPos[8]);
     
-    RH_Motor1->setPosition(mc.jointCmdPos[9]);
-    RH_Motor2->setPosition(mc.jointCmdPos[10]);
-    RH_Motor3->setPosition(mc.jointCmdPos[11]);
+    
     
     //set torque
-     
+    // LF_Motor1->setTorque(mc.pid_motortorque[0]);
+    // LF_Motor2->setTorque(mc.pid_motortorque[1]);
+    // LF_Motor3->setTorque(mc.pid_motortorque[2]);
     
-    // Enter here functions to send actuator commands, like:
-    //  motor->setPosition(10.0);
-    // gettimeofday(&endTime,NULL);
-    // double timeUse = 1000000*(endTime.tv_sec - startTime.tv_sec) + endTime.tv_usec - startTime.tv_usec;
-    // cout <<"time" << timeUse<<endl;
+    // RF_Motor1->setTorque(mc.pid_motortorque[3]);
+    // RF_Motor2->setTorque(mc.pid_motortorque[4]);
+    // RF_Motor3->setTorque(mc.pid_motortorque[5]);
+
+    // LH_Motor1->setTorque(mc.pid_motortorque[6]);
+    // LH_Motor2->setTorque(mc.pid_motortorque[7]);
+    // LH_Motor3->setTorque(mc.pid_motortorque[8]);
+    
+    // RH_Motor1->setTorque(mc.pid_motortorque[9]);
+    // RH_Motor2->setTorque(mc.pid_motortorque[10]);
+    // RH_Motor3->setTorque(mc.pid_motortorque[11]);
+
+    gettimeofday(&endTime,NULL);
+    double timeUse = 1000000*(endTime.tv_sec - startTime.tv_sec) + endTime.tv_usec - startTime.tv_usec;
+    cout <<"time" << timeUse<<endl;
     // usleep(1000 - timeUse);
   };
 
