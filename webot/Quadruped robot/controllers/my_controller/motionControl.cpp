@@ -94,13 +94,13 @@ void MotionControl::nextStep()
                                         (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)) - timePeriod);
             
             for(uint8_t pos=0; pos<3; pos++)
-            legCmdPos(legNum, pos) = legCmdPos(legNum, pos) - swingPhaseVelocity(pos) * timePeriod;
+                legCmdPos(legNum, pos) = legCmdPos(legNum, pos) - swingPhaseVelocity(pos) * timePeriod;
             
             if( ( timePresentForSwing(legNum) - (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)))/2 ) > 1e-4)
-            legCmdPos(legNum, 2) -= 0.1;
+                legCmdPos(legNum, 2) -= -0.1';
             if( ( timePresentForSwing(legNum) - (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)))/2 ) < -1e-4 && timePresentForSwing(legNum) > 1e-4)
-            legCmdPos(legNum, 2) += 0.1;
-            stanceFlag(legNum) = false;
+            legCmdPos(legNum, 2) += -0.1;
+                stanceFlag(legNum) = false;      
         }
     }
 
@@ -197,7 +197,16 @@ void MotionControl::inverseKinematics()
         float y = legCmdPos(leg_num,1);
         float z = legCmdPos(leg_num,2);
         float theta0 = atan (- y / z);
-        float theta2 = acos ((pow(( sin(theta0) * y - cos(theta0) * z), 2)  + pow(x, 2) - pow(L1, 2) - pow(L2, 2)) / ( 2 * L1 * L2)) - PI;
+        float theta2;
+         // = acos ((pow(( sin(theta0) * y - cos(theta0) * z), 2)  + pow(x, 2) - pow(L1, 2) - pow(L2, 2)) / ( 2 * L1 * L2)) - PI ;
+        if ( (pow(( sin(theta0) * y - cos(theta0) * z), 2)  + pow(x, 2) - pow(L1, 2) - pow(L2, 2)) / ( 2 * L1 * L2) > 1.0 || (pow(( sin(theta0) * y - cos(theta0) * z), 2)  + pow(x, 2) - pow(L1, 2) - pow(L2, 2)) / ( 2 * L1 * L2) < -1.0)
+        {
+            theta2 = 0.0 ;
+        }
+        else
+        {
+            theta2 = acos ((pow(( sin(theta0) * y - cos(theta0) * z), 2)  + pow(x, 2) - pow(L1, 2) - pow(L2, 2)) / ( 2 * L1 * L2)) - PI ;
+        }
         float cos_theta1 = ((sin (theta2) * y - cos (theta0) * z) * (L1 + L2 * cos (theta2)) + x * L2 * sin(theta2)) / (pow((sin (theta2) * y - cos (theta0) * z), 2) + pow(x, 2));
         float sin_theta1 = ((L1 + L2 * cos (theta2)) * x - (sin (theta2) * y - cos (theta0) * z) * L2 * sin(theta2)) / (pow((sin (theta2) * y - cos (theta0) * z), 2) + pow(x, 2));
         float theta1 = atan (sin_theta1/ cos_theta1);
@@ -572,7 +581,7 @@ void MotionControl::pid()
     // cout<<"jointCmdPos: "<<temp_jointCmdPos.transpose()<<endl;
     //cout<<"jointCmdVel: "<<temp_jointCmdVel.transpose()<<endl;
     Vector<float, 12> temp_motorCmdTorque;
-    temp_motorCmdTorque = 5 * (temp_jointCmdPos - jointPresentPos) + 0.2 * (temp_jointCmdVel - jointPresentVel);
+    temp_motorCmdTorque = 45 * (temp_jointCmdPos - jointPresentPos) + 2.1 * (temp_jointCmdVel - jointPresentVel);
     // float motorCmdTorque[12];
     for(uint8_t joints=0; joints<12; joints++)
     {
