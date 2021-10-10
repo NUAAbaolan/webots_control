@@ -91,7 +91,6 @@ class MotionControl
         void setInitPos(Matrix<float, 4, 3> initPosition);
         void setCoMVel(Vector<float, 3> tCV);
         void nextStep();
-        void nextStep1();
         void inverseKinematics();   // standing state
         void setInitial();
         void updateState();

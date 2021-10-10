@@ -94,13 +94,13 @@ void MotionControl::nextStep()
                                         (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)) - timePeriod);
             
             for(uint8_t pos=0; pos<3; pos++)
-                legCmdPos(legNum, pos) = legCmdPos(legNum, pos) - swingPhaseVelocity(pos) * timePeriod;
-            
+            legCmdPos(legNum, pos) = legCmdPos(legNum, pos) - swingPhaseVelocity(pos) * timePeriod;
+            float temp_T = (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)))/2;
             if( ( timePresentForSwing(legNum) - (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)))/2 ) > 1e-4)
-                legCmdPos(legNum, 2) -= -0.1';
+            legCmdPos(legNum, 2) -=  0.1 * sin((timePresentForSwing(legNum) - temp_T)*PI/temp_T);
             if( ( timePresentForSwing(legNum) - (timeForGaitPeriod - (timeForStancePhase(legNum,1) - timeForStancePhase(legNum,0)))/2 ) < -1e-4 && timePresentForSwing(legNum) > 1e-4)
-            legCmdPos(legNum, 2) += -0.1;
-                stanceFlag(legNum) = false;      
+            legCmdPos(legNum, 2) += 0.1 * sin(timePresentForSwing(legNum)*PI/temp_T);
+            stanceFlag(legNum) = false;
         }
     }
 
@@ -121,44 +121,6 @@ void MotionControl::nextStep()
     }
 }
 
-void MotionControl::nextStep1()
-{
-    if (timePresent < 0.25)
-    {    //stance leg is 2 and 3 ,swing leg is 1 and 4
-    
-        legCmdPos(0, 0) += targetCoMVelocity(0) * timePeriod;
-        legCmdPos(0, 1) += targetCoMVelocity(1) * timePeriod;
-        legCmdPos(0, 2) += 0.004;
-        legCmdPos(3, 0) += targetCoMVelocity(0) * timePeriod;
-        legCmdPos(3, 1) += targetCoMVelocity(1) * timePeriod;
-        legCmdPos(3, 2) += 0.004;
-        
-        legCmdPos(1, 0) -= targetCoMVelocity(0) * timePeriod;
-        legCmdPos(1, 1) -= targetCoMVelocity(1) * timePeriod;
-        legCmdPos(1, 2) += 0.0;
-        legCmdPos(2, 0) -= targetCoMVelocity(0) * timePeriod;
-        legCmdPos(2, 1) -= targetCoMVelocity(1) * timePeriod;
-        legCmdPos(2, 2) += 0.0;
-    }
-    else
-    {
-        legCmdPos(1, 0) += targetCoMVelocity(0) * timePeriod;
-        legCmdPos(1, 1) += targetCoMVelocity(1) * timePeriod;
-        legCmdPos(1, 2) += 0.004;
-        legCmdPos(2, 0) += targetCoMVelocity(0) * timePeriod;
-        legCmdPos(2, 1) += targetCoMVelocity(1) * timePeriod;
-        legCmdPos(2, 2) += 0.004;
-        
-        legCmdPos(0, 0) -= targetCoMVelocity(0) * timePeriod;
-        legCmdPos(0, 1) -= targetCoMVelocity(1) * timePeriod;
-        legCmdPos(0, 2) += 0.0;
-        legCmdPos(3, 0) -= targetCoMVelocity(0) * timePeriod;
-        legCmdPos(3, 1) -= targetCoMVelocity(1) * timePeriod;
-        legCmdPos(3, 2) += 0.0;
-    }
-    timePresent += timePeriod;
-
-}
 void MotionControl::inverseKinematics()
 {
     // float theta[4][3] = {0};
@@ -207,8 +169,8 @@ void MotionControl::inverseKinematics()
         {
             theta2 = acos ((pow(( sin(theta0) * y - cos(theta0) * z), 2)  + pow(x, 2) - pow(L1, 2) - pow(L2, 2)) / ( 2 * L1 * L2)) - PI ;
         }
-        float cos_theta1 = ((sin (theta2) * y - cos (theta0) * z) * (L1 + L2 * cos (theta2)) + x * L2 * sin(theta2)) / (pow((sin (theta2) * y - cos (theta0) * z), 2) + pow(x, 2));
-        float sin_theta1 = ((L1 + L2 * cos (theta2)) * x - (sin (theta2) * y - cos (theta0) * z) * L2 * sin(theta2)) / (pow((sin (theta2) * y - cos (theta0) * z), 2) + pow(x, 2));
+        float cos_theta1 = ((sin (theta2) * y - cos (theta0) * z) * (L1 + L2 * cos (theta2)) - x * L2 * sin(theta2)) / (pow((sin (theta2) * y - cos (theta0) * z), 2) + pow(x, 2));
+        float sin_theta1 = ((L1 + L2 * cos (theta2)) * x + (sin (theta2) * y - cos (theta0) * z) * L2 * sin(theta2)) / (-pow((sin (theta2) * y - cos (theta0) * z), 2) - pow(x, 2));
         float theta1 = atan (sin_theta1/ cos_theta1);
         jo_ang[leg_num][0] = theta0;
         jo_ang[leg_num][1] = theta1;

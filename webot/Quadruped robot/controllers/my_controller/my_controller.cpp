@@ -55,11 +55,11 @@ int main(int argc, char **argv) {
   // Main loop:
   // - perform simulation steps until Webots is stopping the controller
    Matrix<float, 4, 3> initPos; 
-   // initPos<< 0.0259623, -4.93015e-06, -0.641027, 0.0259617, 1.29909e-06, -0.641112,  0.0259029, 2.28772e-06, -0.64105, 0.0259022, 2.4387e-06, -0.64105;
-   initPos<< 0.026112 ,-4.89848e-06    ,-0.640959,0.0261096 ,-4.89949e-06  ,  -0.640961,0.02625 , 4.65954e-06   , -0.640837, 0.0262509 , 4.65489e-06   , -0.640836;
-   Vector<float, 3> tCV;
-   tCV<< 0.0, 0.0, 0.0;
+   initPos<<  0.0258861,2.5181e-06 ,-0.64106,0.0258846, 2.52607e-06 ,-0.641062,0.0259531, -2.4894e-06 ,-0.641001,0.025955, -2.49027e-06 ,-0.640999;
+   // initPos<< 0.026112 ,-4.89848e-06   , -0.640959,0.0261096 ,-4.89949e-06   , -0.640961,0.02625 , 4.65954e-06  ,  -0.640837, 0.0262509 , 4.65489e-06  ,  -0.640836;
    mc.setInitPos(initPos);
+   Vector<float, 3> tCV;
+   tCV<< 0.1, 0.0, 0.0;
    mc.setCoMVel(tCV);
    
    PositionSensor *LF_joint1 = robot->getPositionSensor("LFL0_position sensor");
@@ -102,8 +102,8 @@ int main(int argc, char **argv) {
    Motor *RH_Motor3 = robot->getMotor("RBL2_rotational motor");
    
    // struct timeval startTime, endTime; 
-   
-   int time = 1;
+    
+  int time = 1;
   while (robot->step(timeStep) != -1) 
   {
     mc.jointPresentPos(0) = LF_joint1->getValue();
@@ -118,6 +118,7 @@ int main(int argc, char **argv) {
     mc.jointPresentPos(9) = RH_joint1->getValue();
     mc.jointPresentPos(10) = RH_joint2->getValue();
     mc.jointPresentPos(11) = RH_joint3->getValue();
+    
     mc.forwardKinematics();
     cout << "leg" << "  " << mc.legCmdPos << endl;
     for (int i = 0; i < 12 ;i++)
@@ -174,19 +175,16 @@ int main(int argc, char **argv) {
     } 
         
     // std::cout<<"joint vec"<<"  "<<mc.jointPresentVel.transpose() << std::endl; 
-
-    
+  
     mc.forwardKinematics();
-    // mc.inverseKinematics();
     mc.initFlag = true;
-    // if(totalTime == 0)
-    // {
     mc.nextStep();
-    // }
-    // totalTime ++;
-    // time ++;
-    // if (totalTime==10)
-    // totalTime = 0;
+    Vector<float, 12> temp_joint;
+    for (int i = 0; i <12; i++)
+    {
+        temp_joint(i) = mc.jointPresentPos(i) - mc.jointCmdPos[i];
+    }
+    cout << "joint" << temp_joint.transpose() << endl;
     mc.inverseKinematics();
     // mc.pid();
     
@@ -196,6 +194,7 @@ int main(int argc, char **argv) {
       // temp_torque(i) = mc.pid_motortorque[i];
     // }
     // cout << "present torque" << "  " <<temp_torque.transpose() << endl;  
+    
     // std::cout<<"command joint"<< " "<<mc.jointCmdPos[0]<<" "<< mc.jointCmdPos[1]<<" "<<mc.jointCmdPos[2]<< " "<<mc.jointCmdPos[3]<<" "<< mc.jointCmdPos[4]<<" "<<mc.jointCmdPos[5]<< " "<<mc.jointCmdPos[6]<<" "<< mc.jointCmdPos[7]<<" "<<mc.jointCmdPos[8]<< " "<<mc.jointCmdPos[9]<<" "<< mc.jointCmdPos[10]<<" "<<mc.jointCmdPos[11]<< std::endl;
     
     //set position
