@@ -1,5 +1,5 @@
-build/release/my_controller.o: my_controller.cpp motiondefine.h \
- Eigen/Core Eigen/src/Core/util/DisableStupidWarnings.h \
+build/release/my_controller.o: my_controller.cpp motionControl.cpp \
+ motiondefine.hpp Eigen/Core Eigen/src/Core/util/DisableStupidWarnings.h \
  Eigen/src/Core/util/Macros.h \
  Eigen/src/Core/util/ConfigureVectorization.h \
  Eigen/src/Core/util/MKL_support.h Eigen/src/Core/util/Constants.h \
@@ -180,9 +180,12 @@ build/release/my_controller.o: my_controller.cpp motiondefine.h \
  Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
  Eigen/src/IterativeLinearSolvers/IncompleteCholesky.h Eigen/Sparse \
  Eigen/SVD \
- /snap/webots/19/usr/share/webots/include/controller/cpp/webots/Robot.hpp \
- /snap/webots/19/usr/share/webots/include/controller/cpp/webots/Device.hpp \
- /snap/webots/19/usr/share/webots/include/controller/cpp/webots/../../c/webots/types.h \
- /snap/webots/19/usr/share/webots/include/controller/cpp/webots/Motor.hpp \
- /snap/webots/19/usr/share/webots/include/controller/cpp/webots/PositionSensor.hpp \
- motionControl.cpp
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/Robot.hpp \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/Device.hpp \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/../../c/webots/types.h \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/Motor.hpp \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/PositionSensor.hpp \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/TouchSensor.hpp \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/InertialUnit.hpp \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/Camera.hpp \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/../../c/webots/camera_recognition_object.h
