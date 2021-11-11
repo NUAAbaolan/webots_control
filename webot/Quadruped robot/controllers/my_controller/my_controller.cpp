@@ -15,6 +15,7 @@
 // #include <webots/PositionSensor.hpp>
 #include <motionControl.cpp>
 #include <ctime>
+#include <webots/Keyboard.hpp>
 // #include <webots/TouchSensor.hpp>
 // #include <webots/InertialUnit.hpp>
 #define PI 3.1415926
@@ -26,6 +27,9 @@ MotionControl mc;
   
 int main(int argc, char **argv) {
     Robot *robot = new Robot(); 
+    Keyboard kb;
+    kb.enable(1000);
+    int key;
     float timePeriod = 0.01;
     float timeForGaitPeriod = 0.60;
     Matrix<float, 4, 2> timeForStancePhase;
@@ -41,7 +45,8 @@ int main(int argc, char **argv) {
     initPos<<  0.0261167 ,-5.95758e-06  ,  -0.640955, 0.026106, -6.00657e-06 ,   -0.640965, 0.026248, -5.66663e-06 ,  -0.64084, 0.0262556 , 4.52107e-06,  -0.640832;
     mc.setInitPos(initPos);
     Vector<float, 3> tCV;
-    tCV<< 1.2, 0.0, 0.0;
+    tCV<< 0.0, 0.0, 0.0;
+    //w:87,s:83,a:65,d:68
     mc.swingFlag = 0;
     mc.setCoMVel(tCV); 
     char StateVal;
@@ -63,6 +68,29 @@ int main(int argc, char **argv) {
          cout << "a"<<endl;
          break;
       case 'b':
+          key = kb.getKey();
+          if (key == 87)
+          {
+            tCV(0) = tCV(0) + 0.01; 
+          }
+          else if (key == 83)
+          {
+            tCV(0) = tCV(0) - 0.01;
+          }
+          else if (key == 65)
+          {
+            tCV(1) = tCV(1) + 0.01; 
+          }
+          else if (key == 68)
+          {
+            tCV(1) = tCV(1) - 0.01; 
+          }
+          else
+          {
+            tCV = tCV;
+          }
+          // cout << key << endl;
+         mc.setCoMVel(tCV);
          mc.Sensor_update();
          mc.forwardKinematics();
          mc.state_judgement();
@@ -71,6 +99,8 @@ int main(int argc, char **argv) {
          mc.swing_VMC();
          mc.inverseKinematics();
          mc.Setjoint();
+         cout << "v:   "<<tCV(0)<<endl;
+         // cout << "leg:   "<< mc.legPresentPos << endl;
          
          // switch(mc.state_val)
          // {

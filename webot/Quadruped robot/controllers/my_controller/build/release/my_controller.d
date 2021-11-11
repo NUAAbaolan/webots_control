@@ -188,4 +188,5 @@ build/release/my_controller.o: my_controller.cpp motionControl.cpp \
  /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/TouchSensor.hpp \
  /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/InertialUnit.hpp \
  /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/Camera.hpp \
- /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/../../c/webots/camera_recognition_object.h
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/../../c/webots/camera_recognition_object.h \
+ /home/baolan/下载/webots-R2021b-x86-64/webots/include/controller/cpp/webots/Keyboard.hpp
