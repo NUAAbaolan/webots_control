@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     mc.setInitPos(initPos);
     Vector<float, 3> tCV;
     tCV<< 0.0, 0.0, 0.0;
-    //w:87,s:83,a:65,d:68
+    //w:87,s:83,a:65,d:68，q:81,e:69
     mc.swingFlag = 0;
     mc.setCoMVel(tCV); 
     char StateVal;
@@ -85,6 +85,14 @@ int main(int argc, char **argv) {
           {
             tCV(1) = tCV(1) - 0.01; 
           }
+          else if(key == 81)
+          {
+            tCV(2) = tCV(2) + 0.01;
+          }
+          else if(key == 69)
+          {
+            tCV(2) = tCV(2) - 0.01;
+          }
           else
           {
             tCV = tCV;
@@ -99,7 +107,7 @@ int main(int argc, char **argv) {
          mc.swing_VMC();
          mc.inverseKinematics();
          mc.Setjoint();
-         cout << "v:   "<<tCV(0)<<endl;
+         cout << "v:   "<<tCV.transpose()<<endl;
          // cout << "leg:   "<< mc.legPresentPos << endl;
          
          // switch(mc.state_val)
