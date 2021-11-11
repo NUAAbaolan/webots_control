@@ -6,7 +6,7 @@ maximizedDockId: -1
 centralWidgetVisible: 1
 projectionMode: ORTHOGRAPHIC
 renderingMode: PLAIN
-orthographicViewHeight: 4.4182
-textFiles: 0 "controllers/my_controller/my_controller.cpp" "controllers/my_controller/motionControl.cpp" "controllers/my_controller/motiondefine.hpp"
+orthographicViewHeight: 2.59277
+textFiles: 1 "controllers/my_controller/my_controller.cpp" "controllers/my_controller/motionControl.cpp" "controllers/my_controller/motiondefine.hpp"
 consoles: Console:All:All
-renderingDevicePerspectives: robot:camera;1;3.84375;0.00321022;0
+renderingDevicePerspectives: robot:camera;1;2.90625;0.00321022;0

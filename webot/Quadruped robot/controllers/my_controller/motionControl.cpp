@@ -57,7 +57,6 @@ void MotionControl::Sensor_update()
     {
         jointPresentPos(i) = Ps[i]->getValue();
     }
-    // cout << "joint:   "<< jointPresentPos.transpose()<<endl;
     float temp_touch1 = Ts[0]->getValue();
     float temp_touch2 = Ts[1]->getValue();
     float temp_touch3 = Ts[2]->getValue();
@@ -66,14 +65,11 @@ void MotionControl::Sensor_update()
     for (int i = 0; i < 3; i++)
     {
         imu_num(i) = imu->getRollPitchYaw()[i];
-    }
-    cout << "imu:   "<< imu_num.transpose()<<endl;
-        
+    } 
+    cout << "imu:   "<< imu_num.transpose()<<endl;       
     for (int i = 0; i < 12; i++)
     {
         jointPresentVel(i) = (jointPresentPos(i) - jointLastPos(i))/ timePeriod;
-        // if (jointPresentVel(i) > 1000 && jointPresentVel(i) < -1000)
-        // jointPresentVel(i) = 0.0;
     }      
 
     for (int i = 0; i < 3; i++)
@@ -128,8 +124,6 @@ void MotionControl::Setjoint()
     Vector<float, 12> temp_motorCmdTorque;
     temp_motorCmdTorque = 0.0* (temp_jointCmdPos - jointPresentPos) + 0.0* (temp_jointCmdVel - jointPresentVel);
     jacobian_torque += temp_motorCmdTorque;
-    // cout << "joint:    "<< jointPresentVel.transpose()<<endl;
-    // cout << "torque:   "<< jacobian_torque.transpose()<<endl;
     for (int i = 0; i < 12; i++)
     {
         Tor[i]->setTorque(jacobian_torque(i));
@@ -191,16 +185,16 @@ void MotionControl::stance_VMC()
     static float target_taoz = 0.0;
     float G = 66;
     float kx = 1500;
-    float ky = 300 ;//2000
+    float ky = 200 ;
     float kz = 800;
     float dx = 100;
-    float dy = 450;//150
+    float dy = 550;
     float dz = 120;
     float k_taox = 1460;
-    float k_taoy = 1460;
+    float k_taoy = 1400;
     float k_taoz = 1200;
     float d_taox = 130;//110
-    float d_taoy = 82;
+    float d_taoy = 81;
     float d_taoz = 100;
     target_taoz = target_taoz + targetCoMVelocity[2] * timePeriod;
     //1:y,  2:x,  3:z
@@ -238,7 +232,6 @@ void MotionControl::stance_VMC()
         float Fz = -kz * (-0.640955 - legPresentPos(3,2)) + dz * (0 - presentCoMVelocity(2));
         float Fy = -ky * (-5.95758e-06  -legPresentPos(3, 1)) + dy * (targetCoMVelocity[1] - presentCoMVelocity[1]);
         B << Fx - 9.81 * G * sin(-imu_num(1)), Fy, 9.81 * G * cos(-imu_num(1)) + Fz, tao_x, tao_y, tao_z;
-        // cout << "xuni:   "<< B.transpose() <<endl;
     }
     else
     {
@@ -271,7 +264,6 @@ void MotionControl::stance_VMC()
         float Fz = -kz * (-0.640955 - legPresentPos(2,2)) + dz * (0 - presentCoMVelocity(2));
         float Fy = -ky * (-5.95758e-06  -legPresentPos(2, 1)) + dy * (targetCoMVelocity[1] - presentCoMVelocity[1]);
         B << Fx - 9.81 * G * sin(-imu_num(1)), Fy, 9.81 * G * cos(-imu_num(1)) + Fz, tao_x, tao_y, tao_z;
-        // cout << "xuni:   "<< B.transpose() <<endl;
     }
     Matrix<float, 12, 6> temp_matrix;
     float temp = 0.08;
@@ -281,16 +273,11 @@ void MotionControl::stance_VMC()
     temp_matrix(11, 5) = 0.1 * temp_matrix(11, 5);
     temp_matrix(6, 0) = 10 * temp_matrix(6, 0);
     temp_matrix(9, 3) = 10 * temp_matrix(9, 3);
-    // << temp * 5, temp, temp * 0.01, temp * 5, temp, temp * 0.01;
-    // temp_matrix.block(0,6,6,6) = MatrixXf::Zero(6, 6);
-    // temp_matrix.block(6,0,6,6) = MatrixXf::Zero(6, 6);
     Vector<float, 12>temp_vector;
     temp_vector.head(6) = B;
     temp_vector.tail(6) << 0,0,0,0,0,0;                               
     Vector<float, 6> temp_Force;
     temp_Force =  temp_matrix.jacobiSvd(ComputeThinU | ComputeThinV).solve(temp_vector);
-    // cout << "force:  "<< temp_Force.transpose()<< endl;
-    // cout << "B：     "<< (temp_matrix * temp_Force).transpose()<<endl;
     Matrix<float, 6, 6>jacobian_Matrix;
     if (swingFlag == 0)
     {
@@ -326,7 +313,7 @@ void MotionControl::stance_VMC()
 void MotionControl::swing_VMC()
 {
     float H = 0.2;
-    float T = 0.2;
+    float T = 0.32;
     float S = T * targetCoMVelocity[0]/2; 
     float t = fly_time ; 
     float x = S * (t/T-sin(2*PI*t/T)/(2*PI));
@@ -360,13 +347,12 @@ void MotionControl::swing_VMC()
     float swinghy_kd = 92;
     float swinghz_kd = 200;
     Matrix<float, 6, 6>jacobian_swingMatrix;
-    cout << "fly time:    "<< fly_time << endl;
     if (swingFlag == 0) 
     {
-        legCmdPos(1,0) = 0.02 + x;
+        legCmdPos(1,0) = -0.03 + x;
         legCmdPos(1,1) = -5.95758e-06  + y - legPresentPos(3,1) ;
         legCmdPos(1,2) = -0.64 + z;
-        legCmdPos(2,0) = 0.02 + x;
+        legCmdPos(2,0) = -0.03 + x;
         legCmdPos(2,1) = -5.95758e-06  + y - legPresentPos(3,1);
         legCmdPos(2,2) = -0.64 + z;
         legCmdVel(0) = vx;
@@ -394,15 +380,13 @@ void MotionControl::swing_VMC()
         temp_forceswing(4) = swinghy_kp * (legCmdPos(2,1)- legPresentPos(2,1)) - swinghy_kd * (legPresentVel(4) - legCmdVel(4));
         temp_forceswing(5) = swinghz_kp * (legCmdPos(2,2)- legPresentPos(2,2)) - swinghz_kd * (legPresentVel(5) - legCmdVel(5));    
         jacobian_torque.segment(3, 6) = jacobian_swingMatrix.transpose() * temp_forceswing; 
-        // cout << temp_forceswing.transpose()<<endl;
-        // jacobian_torque.segment(3, 6) << 0.0,0.0,0.0,0.0,0.0,0.0;       
     }
     else
     { 
-        legCmdPos(0,0) = 0.02 + x;
+        legCmdPos(0,0) = -0.03 + x;
         legCmdPos(0,1) = -5.95758e-06  + y - legPresentPos(2,1);
         legCmdPos(0,2) = -0.64 + z;
-        legCmdPos(3,0) = 0.02 + x;
+        legCmdPos(3,0) = -0.03 + x;
         legCmdPos(3,1) = -5.95758e-06  + y - legPresentPos(2,1);
         legCmdPos(3,2) = -0.64 + z;
         legCmdVel(0) = vx;
@@ -434,8 +418,6 @@ void MotionControl::swing_VMC()
         temp_torqueswing = jacobian_swingMatrix.transpose() * temp_forceswing;
         jacobian_torque.head(3) = temp_torqueswing.head(3);
         jacobian_torque.tail(3) = temp_torqueswing.tail(3);
-        // jacobian_torque.head(3) << 0.0,0.0,0.0;
-        // jacobian_torque.tail(3) << 0.0,0.0,0.0;
     }
     
     fly_time += timePeriod;
@@ -447,7 +429,6 @@ void MotionControl::swing_VMC()
         else 
         swingFlag = 0;
     }
-    // cout << "time"<<fly_time<<endl;
     
 }
 
